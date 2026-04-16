@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Ai Là Triệu Phú - Quiz</title>
+<style>
+  body {
+    font-family: Arial;
+    background: #0b1d3a;
+    color: white;
+    text-align: center;
+  }
+  .container {
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+  }
+  .question {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+  .answers button {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    font-size: 16px;
+    background: #1e3c72;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  .answers button:hover {
+    background: #2a5298;
+  }
+  .correct { background: green !important; }
+  .wrong { background: red !important; }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <h1>💰 Ai Là Triệu Phú</h1>
+  <div id="question" class="question"></div>
+  <div id="answers" class="answers"></div>
+  <h3 id="progress"></h3>
+</div>
+
+<script>
+const quiz = [
+{"question":"Thủ đô của Pháp là gì?","options":["Berlin","Madrid","Paris","Rome"],"answer":"Paris"},
+{"question":"Châu lục lớn nhất thế giới là gì?","options":["Châu Phi","Châu Á","Châu Âu","Châu Mỹ"],"answer":"Châu Á"},
+{"question":"Sông dài nhất thế giới là gì?","options":["Amazon","Nile","Mississippi","Dương Tử"],"answer":"Nile"},
+{"question":"Núi cao nhất thế giới là gì?","options":["K2","Everest","Kilimanjaro","Fuji"],"answer":"Everest"},
+{"question":"Quốc gia đông dân nhất (truyền thống)?","options":["Mỹ","Ấn Độ","Trung Quốc","Nga"],"answer":"Trung Quốc"},
+
+{"question":"Đại dương lớn nhất là gì?","options":["Đại Tây Dương","Ấn Độ Dương","Bắc Băng Dương","Thái Bình Dương"],"answer":"Thái Bình Dương"},
+{"question":"Ai Cập thuộc châu lục nào?","options":["Châu Á","Châu Phi","Châu Âu","Châu Mỹ"],"answer":"Châu Phi"},
+{"question":"Thủ đô Nhật Bản là gì?","options":["Osaka","Kyoto","Tokyo","Nagoya"],"answer":"Tokyo"},
+{"question":"Sa mạc Sahara nằm ở đâu?","options":["Châu Á","Châu Mỹ","Châu Phi","Châu Âu"],"answer":"Châu Phi"},
+{"question":"Quốc gia lớn nhất thế giới?","options":["Mỹ","Trung Quốc","Nga","Canada"],"answer":"Nga"},
+
+{"question":"Thủ đô Canada?","options":["Toronto","Ottawa","Vancouver","Montreal"],"answer":"Ottawa"},
+{"question":"Thủ đô Úc?","options":["Sydney","Melbourne","Canberra","Perth"],"answer":"Canberra"},
+{"question":"Thủ đô Đức?","options":["Munich","Frankfurt","Berlin","Hamburg"],"answer":"Berlin"},
+{"question":"Thủ đô Brazil?","options":["Rio","São Paulo","Brasília","Salvador"],"answer":"Brasília"},
+{"question":"Thủ đô Ý?","options":["Milan","Venice","Rome","Naples"],"answer":"Rome"},
+
+{"question":"Sa mạc lớn nhất thế giới?","options":["Sahara","Gobi","Nam Cực","Ả Rập"],"answer":"Nam Cực"},
+{"question":"Hồ sâu nhất thế giới?","options":["Superior","Victoria","Baikal","Caspian"],"answer":"Baikal"},
+{"question":"Đảo lớn nhất thế giới?","options":["Borneo","Madagascar","Greenland","New Guinea"],"answer":"Greenland"},
+{"question":"Quốc gia nhỏ nhất thế giới?","options":["Monaco","Malta","Vatican","San Marino"],"answer":"Vatican"},
+{"question":"Sông Amazon thuộc đâu?","options":["Brazil","Peru","Colombia","Tất cả"],"answer":"Tất cả"},
+
+{"question":"Ai phát hiện châu Mỹ?","options":["Columbus","Magellan","Cook","Vespucci"],"answer":"Columbus"},
+{"question":"WWI bắt đầu năm nào?","options":["1912","1914","1916","1918"],"answer":"1914"},
+{"question":"WWII kết thúc năm nào?","options":["1944","1945","1946","1947"],"answer":"1945"},
+{"question":"Tổng thống đầu tiên Mỹ?","options":["Lincoln","Washington","Jefferson","Adams"],"answer":"Washington"},
+{"question":"Kim tự tháp thuộc nền văn minh nào?","options":["Hy Lạp","La Mã","Ai Cập","Ấn Độ"],"answer":"Ai Cập"},
+
+{"question":"Ai phát minh bóng đèn?","options":["Tesla","Edison","Newton","Bell"],"answer":"Edison"},
+{"question":"Ai đưa ra thuyết tương đối?","options":["Newton","Einstein","Darwin","Galileo"],"answer":"Einstein"},
+{"question":"Napoleon là người nước nào?","options":["Ý","Đức","Pháp","Tây Ban Nha"],"answer":"Pháp"},
+{"question":"Hitler lãnh đạo nước nào?","options":["Ý","Đức","Áo","Hungary"],"answer":"Đức"},
+{"question":"Lenin thuộc nước nào?","options":["Nga","Đức","Pháp","Ba Lan"],"answer":"Nga"},
+
+{"question":"Người đầu tiên lên Mặt Trăng?","options":["Gagarin","Armstrong","Collins","Aldrin"],"answer":"Armstrong"},
+{"question":"Mandela thuộc nước nào?","options":["Kenya","Nam Phi","Nigeria","Ai Cập"],"answer":"Nam Phi"},
+{"question":"Bức tường Berlin sụp đổ năm?","options":["1985","1987","1989","1991"],"answer":"1989"},
+{"question":"Gandhi thuộc nước nào?","options":["Ấn Độ","Pakistan","Nepal","Sri Lanka"],"answer":"Ấn Độ"},
+{"question":"Thành Cát Tư Hãn lập đế chế nào?","options":["Mông Cổ","Trung Quốc","Nga","Ba Tư"],"answer":"Mông Cổ"},
+
+// 👉 Bạn có thể copy thêm câu hỏi ở đây để đủ 100
+];
+
+let current = 0;
+
+function loadQuestion() {
+  const q = quiz[current];
+  document.getElementById("question").innerText = q.question;
+  document.getElementById("progress").innerText = `Câu ${current+1}/${quiz.length}`;
+ 
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  q.options.forEach(option => {
+    const btn = document.createElement("button");
+    btn.innerText = option;
+
+    btn.onclick = () => {
+      if (option === q.answer) {
+        btn.classList.add("correct");
+        setTimeout(() => {
+          current++;
+          if (current < quiz.length) loadQuestion();
+          else alert("🎉 Bạn đã hoàn thành!");
+        }, 800);
+      } else {
+        btn.classList.add("wrong");
+      }
+    };
+
+    answersDiv.appendChild(btn);
+  });
+}
+
+loadQuestion();
+</script>
+</body>
+</html>
