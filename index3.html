@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ai Là Triệu Phú</title>
+
+<style>
+body {
+margin: 0;
+font-family: Arial;
+background: radial-gradient(circle, #0f172a, #020617);
+color: white;
+transition: 0.5s;
+}
+.container {
+max-width: 700px;
+margin: auto;
+padding: 20px;
+text-align: center;
+}
+.question-box {
+background: #1e3a8a;
+padding: 20px;
+border-radius: 12px;
+margin-top: 20px;
+}
+.answers {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
+margin-top: 20px;
+}
+.answer {
+padding: 15px;
+border-radius: 10px;
+background: #1e40af;
+cursor: pointer;
+}
+.answer:hover { background: #2563eb; }
+.selected { background: orange !important; }
+.correct { background: green !important; }
+.wrong { background: red !important; }
+.lifelines button {
+margin: 5px;
+padding: 10px;
+border-radius: 50%;
+background: gold;
+cursor: pointer;
+}
+.money {
+margin-top: 20px;
+text-align: left;
+}
+.active { color: cyan; }
+.safe { color: yellow; font-weight: bold; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>💰 AI LÀ TRIỆU PHÚ</h1>
+
+<div class="question-box">
+<h2 id="question"></h2>
+</div>
+
+<div class="answers" id="answers"></div>
+
+<div class="lifelines">
+<button onclick="use5050()">50:50</button>
+<button onclick="useAudience()">👥</button>
+<button onclick="useCall()">📞</button>
+</div>
+
+<div class="money" id="money"></div>
+</div>
+
+<script>
+// ===== DATA =====
+const rawQuestions = [
+{q:"2/9/1945 là gì?",a:["Độc lập","Chiến tranh","Hiệp định","Khởi nghĩa"],c:0},
+{q:"Thủ đô Nhật Bản?",a:["Osaka","Tokyo","Kyoto","Nagoya"],c:1},
+{q:"Thủ đô Hàn Quốc?",a:["Seoul","Busan","Incheon","Daegu"],c:0},
+{q:"Thủ đô Trung Quốc?",a:["Thượng Hải","Bắc Kinh","Quảng Châu","Thâm Quyến"],c:1},
+{q:"Thủ đô Thái Lan?",a:["Bangkok","Chiang Mai","Phuket","Pattaya"],c:0},
+{q:"Núi cao nhất thế giới?",a:["K2","Everest","Fuji","Annapurna"],c:1},
+{q:"Sông dài nhất?",a:["Amazon","Nile","Dương Tử","Mississippi"],c:1},
+{q:"Đại dương lớn nhất?",a:["Đại Tây Dương","Ấn Độ","Thái Bình Dương","Bắc Băng"],c:2},
+{q:"Ai phát minh bóng đèn?",a:["Newton","Tesla","Edison","Einstein"],c:2},
+{q:"Kim tự tháp ở đâu?",a:["Mexico","Peru","Ai Cập","Ấn Độ"],c:2},
+{q:"Ngôn ngữ nhiều người nói nhất?",a:["Anh","Trung","Hindi","TBN"],c:1},
+{q:"Môn thể thao vua?",a:["Bóng rổ","Bóng đá","Tennis","Bóng chuyền"],c:1}
+{q:"2/9/1945 là gì?",a:["Độc lập","Chiến tranh","Hiệp định","Khởi nghĩa"],c:0},
+{q:"Điện Biên Phủ năm?",a:["1952","1953","1954","1955"],c:2},
+{q:"Hiệp định Genève năm?",a:["1953","1954","1955","1956"],c:1},
+{q:"Vĩ tuyến chia cắt?",a:["15","16","17","18"],c:2},
+{q:"Giải phóng miền Nam?",a:["30/4/1975","1/5","2/9","27/7"],c:0},
+{q:"Thống nhất đất nước?",a:["1975","1976","1977","1978"],c:1},
+{q:"Tên nước sau 1976?",a:["VNDCCH","CHXHCNVN","Đại Việt","Việt Nam"],c:1},
+{q:"Đổi mới năm?",a:["1984","1985","1986","1987"],c:2},
+{q:"Gia nhập ASEAN?",a:["1993","1994","1995","1996"],c:2},
+{q:"Gia nhập WTO?",a:["2005","2006","2007","2008"],c:2},
+{q:"Thủ đô VN?",a:["Huế","Hà Nội","Đà Nẵng","SG"],c:1},
+{q:"Quốc khánh?",a:["30/4","2/9","1/5","3/2"],c:1},
+{q:"Chiến dịch HCM?",a:["1973","1974","1975","1976"],c:2},
+{q:"Đại hội đổi mới?",a:["IV","V","VI","VII"],c:2},
+{q:"Sau 1945 là gì?",a:["Độc lập","Thuộc địa","Chiến tranh","Hòa bình"],c:0}
+const worldQuestions = 
+{q:"Thủ đô Nhật Bản?",a:["Osaka","Tokyo","Kyoto","Nagoya"],c:1},
+{q:"Thủ đô Hàn Quốc?",a:["Seoul","Busan","Incheon","Daegu"],c:0},
+{q:"Thủ đô Trung Quốc?",a:["Thượng Hải","Bắc Kinh","Quảng Châu","Thâm Quyến"],c:1},
+{q:"Thủ đô Thái Lan?",a:["Bangkok","Chiang Mai","Phuket","Pattaya"],c:0},
+{q:"Thủ đô Indonesia?",a:["Jakarta","Bali","Bandung","Surabaya"],c:0},
+
+{q:"Núi cao nhất thế giới?",a:["K2","Everest","Fuji","Annapurna"],c:1},
+{q:"Sông dài nhất?",a:["Amazon","Nile","Dương Tử","Mississippi"],c:1},
+{q:"Đại dương lớn nhất?",a:["Đại Tây Dương","Ấn Độ","Thái Bình Dương","Bắc Băng"],c:2},
+
+{q:"Ai phát minh bóng đèn?",a:["Newton","Tesla","Edison","Einstein"],c:2},
+{q:"Ai viết Romeo & Juliet?",a:["Shakespeare","Hemingway","Tolstoy","Dante"],c:0},
+
+{q:"Châu lục lớn nhất?",a:["Âu","Á","Phi","Mỹ"],c:1},
+{q:"Quốc gia đông dân nhất?",a:["Ấn Độ","Trung Quốc","Mỹ","Indonesia"],c:1},
+
+{q:"Đồng tiền Nhật?",a:["Won","Yên","Dollar","Euro"],c:1},
+{q:"Đồng tiền Hàn?",a:["Yên","Won","Baht","Peso"],c:1},
+
+{q:"Kim tự tháp ở đâu?",a:["Mexico","Peru","Ai Cập","Ấn Độ"],c:2},
+{q:"Tháp Eiffel ở đâu?",a:["Ý","Pháp","Đức","Anh"],c:1},
+
+{q:"Sa mạc lớn nhất?",a:["Sahara","Gobi","Kalahari","Arab"],c:0},
+{q:"Biển lớn nhất?",a:["Địa Trung Hải","Biển Đông","Biển Ả Rập","Biển Đen"],c:0},
+
+{q:"Ngôn ngữ nhiều người nói nhất?",a:["Anh","Trung","Hindi","TBN"],c:1},
+{q:"Môn thể thao vua?",a:["Bóng rổ","Bóng đá","Tennis","Bóng chuyền"],c:1},
+];
+
+// 👉 Bạn có thể copy thêm 80 câu vào đây
+
+// ===== MONEY =====
+const moneyList = [
+"100k","200k","300k","500k","1tr",
+"2tr","3tr","5tr","10tr","20tr",
+"30tr","50tr","100tr","200tr","500tr"
+];
+
+// ===== STATE =====
+let current = 0;
+let questions = [];
+let locked = false;
+let used = {fifty:false, audience:false, call:false};
+
+// ===== INIT =====
+function initGame() {
+questions = [...rawQuestions]
+.map(q => shuffle(q))
+.sort(()=>Math.random()-0.5);
+
+current = 0;
+loadQuestion();
+}
+
+// ===== SHUFFLE =====
+function shuffle(q) {
+let arr = q.a.map((text,i)=>({text, correct: i===q.c}));
+arr.sort(()=>Math.random()-0.5);
+
+return {
+question: q.q,
+answers: arr.map(x=>x.text),
+correct: arr.findIndex(x=>x.correct)
+};
+}
+
+// ===== LOAD =====
+function loadQuestion() {
+locked = false;
+const q = questions[current];
+
+document.getElementById("question").innerText = q.question;
+
+const container = document.getElementById("answers");
+container.innerHTML = "";
+
+const letters = ["A","B","C","D"];
+
+q.answers.forEach((text,i)=>{
+let div = document.createElement("div");
+div.className = "answer";
+div.innerText = letters[i] + ". " + text;
+div.onclick = ()=>selectAnswer(i);
+container.appendChild(div);
+});
+
+renderMoney();
+}
+
+// ===== MONEY =====
+function renderMoney() {
+let html = "";
+for (let i=14;i>=0;i--) {
+let cls = "";
+if(i===current) cls="active";
+if(i===4||i===9||i===14) cls+=" safe";
+html += `<div class="${cls}">${i+1}. ${moneyList[i]}</div>`;
+}
+document.getElementById("money").innerHTML = html;
+}
+
+// ===== SELECT =====
+function selectAnswer(i) {
+if (locked) return;
+locked = true;
+
+let nodes = document.querySelectorAll(".answer");
+nodes[i].classList.add("selected");
+
+setTimeout(()=>checkAnswer(i),2000);
+}
+
+// ===== CHECK =====
+function checkAnswer(i) {
+const q = questions[current];
+let nodes = document.querySelectorAll(".answer");
+
+if(i===q.correct){
+nodes[i].classList.add("correct");
+
+setTimeout(()=>{
+current++;
+if(current>=questions.length){
+document.body.innerHTML="<h1>🎉 TRIỆU PHÚ!</h1>";
+} else loadQuestion();
+},1500);
+
+} else {
+nodes[i].classList.add("wrong");
+nodes[q.correct].classList.add("correct");
+
+setTimeout(()=>{
+alert("❌ Sai rồi! Reset với câu hỏi mới!");
+
+document.body.style.opacity = 0;
+
+setTimeout(()=>{
+initGame(); // 🔥 reset + trộn lại
+document.body.style.opacity = 1;
+},500);
+
+},1500);
+}
+}
+
+// ===== LIFELINES =====
+function use5050(){
+if(used.fifty) return alert("Đã dùng!");
+used.fifty=true;
+
+let q=questions[current];
+let nodes=document.querySelectorAll(".answer");
+
+let wrong=[];
+nodes.forEach((_,i)=>{if(i!==q.correct) wrong.push(i);});
+
+wrong.sort(()=>Math.random()-0.5);
+wrong.slice(0,2).forEach(i=>nodes[i].style.visibility="hidden");
+}
+
+function useAudience(){
+if(used.audience) return alert("Đã dùng!");
+used.audience=true;
+
+let q=questions[current];
+let p=[0,0,0,0];
+
+p[q.correct]=Math.floor(Math.random()*30)+50;
+let remain=100-p[q.correct];
+
+for(let i=0;i<4;i++){
+if(i!==q.correct){
+p[i]=Math.floor(remain/3);
+}
+}
+
+alert(`A:${p[0]}% B:${p[1]}% C:${p[2]}% D:${p[3]}%`);
+}
+
+function useCall(){
+if(used.call) return alert("Đã dùng!");
+used.call=true;
+
+let q=questions[current];
+let a=["A","B","C","D"];
+
+let s=Math.random()<0.8?a[q.correct]:a[Math.floor(Math.random()*4)];
+alert("Tôi nghĩ: "+s);
+}
+
+initGame();
+</script>
+
+</body>
+</html>
